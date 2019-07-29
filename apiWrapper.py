@@ -80,7 +80,7 @@ args, unparsed = processArguments()
 
 if args.veracodeId and args.veracodeSecret and args.apiWrapperPath:
     vcApi = VeracodeAPI(args.veracodeId, args.veracodeSecret, args.apiWrapperPath)
-    appId, buildId = vcApi.runCommand(args.operation, args.unparsed)
+    appId, buildId = vcApi.runCommand(args.operation, unparsed)
     if args.monitor and appId and buildId and args.checkInterval and args.maximumWait:
         buildStatus = vcApi.checkStatus(appId, buildId, args.checkInterval, args.maximumWait)
         print(buildStatus)
