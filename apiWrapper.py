@@ -8,7 +8,8 @@ from datetime import datetime
 def processArguments():
     parser = argparse.ArgumentParser(description = 'A Python wrapper to the Veracode Java API jar providing "break the build" functionality', 
                                      epilog = 'Any additional arguments will be passed through to the API jar.', allow_abbrev = False)
-    parser.add_argument('-o', '--operation', type = str, help = 'API operating to execute. Options = UploadAndScan, CreateAndSubmitDynamicRescan', default = 'UploadAndScan')
+    parser.add_argument('-n', '--name', type = str, help = 'Application name.')
+    parser.add_argument('-o', '--operation', type = str, help = 'API operating to execute. Options = UploadAndScan, CreateAndSubmitDynamicRescan', default = 'uploadandscan')
     parser.add_argument('-a', '--apiWrapperPath', type = str, help = 'File path to Veracode API Java wrapper', default = './vosp-api-wrappers-java-19.6.5.8.jar')
     parser.add_argument('-v', '--veracodeId', type = str, help = 'Veracode API credentials ID')
     parser.add_argument('-s', '--veracodeSecret', type = str, help = 'Veracode API credentials secret')
@@ -35,14 +36,15 @@ class VeracodeAPI():
         return s[end_of_leader:start_of_trailer]
 
     def runCommand(self, operation: str, extraArgs: list):
+        print(extraArgs)
         commandToRun = self.baseCommand + ['-action', operation] + extraArgs
-        self.log('Running command: ' + ' '.join(['java', '-jar', self.apiWrapperPath, '-vid', self.veracodeId[:6] + '...', '-vkey', '*****', '-action', operation] + extraArgs))
+        self.log('Running command: ' + ' '.join(commandToRun))
         commandExecution = subprocess.run(commandToRun, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 0)
         self.log(commandExecution.stdout.decode())
         if commandExecution.returncode == 0:
             try:
-                appId = processOutput(commandExecution.stdout.decode(), 'appid=', ')')
-                buildId = processOutput(commandExecution.stdout.decode(), 'The build_id of the new build is "', '"')
+                appId = self.processOutput(commandExecution.stdout.decode(), 'appid=', ')')
+                buildId = self.processOutput(commandExecution.stdout.decode(), 'The build_id of the new build is "', '"')
                 return appId, buildId
             except ValueError as e:
                 self.log(e)
@@ -60,7 +62,7 @@ class VeracodeAPI():
             self.log('Checking scan status [' + str(totalTime // checkInterval) + '/' + str(maximumWait // checkInterval) + ']')
             if 'results_ready="true"' in commandExecution.stdout.decode():
                 while True:
-                    buildStatus = processOutput(commandExecution.stdout.decode(), 'policy_compliance_status="', '"')
+                    buildStatus = self.processOutput(commandExecution.stdout.decode(), 'policy_compliance_status="', '"')
                     if buildStatus not in ['Calculating...', 'Not Assessed']:
                         log('Scan complete, policy compliance status: ' + buildStatus)
                         if buildStatus in ['Conditional Pass', 'Pass']:
