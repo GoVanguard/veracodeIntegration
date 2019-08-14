@@ -31,9 +31,9 @@ class VeracodeAPI():
         print(exLinesToLog, flush = True)
 
     def processOutput(self, outputTextToProcess: str, startsWith: str, endsWith: str) -> str:
-        end_of_leader = s.index(leader) + len(leader)
-        start_of_trailer = s.index(trailer, end_of_leader)
-        return s[end_of_leader:start_of_trailer]
+        end_of_leader = outputTextToProcess.index(startsWith) + len(startsWith)
+        start_of_trailer = outputTextToProcess.index(endsWith, end_of_leader)
+        return outputTextToProcess[end_of_leader:start_of_trailer]
 
     def runCommand(self, operation: str, extraArgs: list):
         print(extraArgs)
