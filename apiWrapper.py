@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 
 def processArguments():
-    parser = argparse.ArgumentParser(description = 'A Python wrapper to the Veracode Java API jar providing "break the build" functionality', 
+    parser = argparse.ArgumentParser(description = 'A Python wrapper to the Veracode Java API jar providing "break the build" functionality',
                                      epilog = 'Any additional arguments will be passed through to the API jar.', allow_abbrev = False)
     parser.add_argument('-n', '--name', type = str, help = 'Application name.')
     parser.add_argument('-o', '--operation', type = str, help = 'API operating to execute. Options = UploadAndScan, CreateAndSubmitDynamicRescan', default = 'uploadandscan')
@@ -48,7 +48,7 @@ class VeracodeAPI():
                 return appId, buildId
             except ValueError as e:
                 self.log(e)
-                sys.exit(1)          
+                sys.exit(1)      
         else:
             sys.exit(commandExecution.returncode)
         return
